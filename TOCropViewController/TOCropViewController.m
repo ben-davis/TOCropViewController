@@ -61,20 +61,20 @@
     if (image == nil) {
         return nil;
     }
-    
+
     self = [super init];
     if (self) {
         self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
         self.modalPresentationStyle = UIModalPresentationFullScreen;
-        
+
         _transitionController = [[TOCropViewControllerTransitioning alloc] init];
         _image = image;
-        
+
         _defaultAspectRatio = TOCropViewControllerAspectRatioOriginal;
         _toolbarPosition = TOCropViewControllerToolbarPositionBottom;
         _rotateClockwiseButtonHidden = YES;
     }
-    
+
     return self;
 }
 
@@ -87,19 +87,19 @@
 
     self.toolbar.frame = [self frameForToolBarWithVerticalLayout:CGRectGetWidth(self.view.bounds) < CGRectGetHeight(self.view.bounds)];
     [self.view addSubview:self.toolbar];
-    
+
     __weak typeof(self) weakSelf = self;
     self.toolbar.doneButtonTapped =     ^{ [weakSelf doneButtonTapped]; };
     self.toolbar.cancelButtonTapped =   ^{ [weakSelf cancelButtonTapped]; };
-    
+
     self.toolbar.resetButtonTapped =    ^{ [weakSelf resetCropViewLayout]; };
     self.toolbar.clampButtonTapped =    ^{ [weakSelf showAspectRatioDialog]; };
-    
+
     self.toolbar.rotateCounterclockwiseButtonTapped =   ^{ [weakSelf rotateCropViewCounterclockwise]; };
     self.toolbar.rotateClockwiseButtonTapped =   ^{ [weakSelf rotateCropViewClockwise]; };
-    
+
     self.toolbar.clampButtonHidden = self.aspectRatioLocked;
-    
+
     self.transitioningDelegate = self;
     self.view.backgroundColor = self.cropView.backgroundColor;
 
@@ -111,7 +111,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+
     if (animated) {
         self.inTransition = YES;
         [self setNeedsStatusBarAppearanceUpdate];
@@ -124,7 +124,7 @@
     self.inTransition = NO;
     if (animated && [UIApplication sharedApplication].statusBarHidden == NO) {
         [UIView animateWithDuration:0.3f animations:^{ [self setNeedsStatusBarAppearanceUpdate]; }];
-        
+
         if (self.cropView.gridOverlayHidden)
             [self.cropView setGridOverlayHidden:NO animated:YES];
     }
@@ -166,17 +166,17 @@
     }
     else {
         frame.origin.x = 0.0f;
-        
+
         if (_toolbarPosition == TOCropViewControllerToolbarPositionBottom) {
             frame.origin.y = CGRectGetHeight(self.view.bounds) - 44.0f;
         } else {
             frame.origin.y = 0;
         }
-        
+
         frame.size.width = CGRectGetWidth(self.view.bounds);
         frame.size.height = 44.0f;
     }
-    
+
     return frame;
 }
 
@@ -191,7 +191,7 @@
     }
     else {
         frame.origin.x = 0.0f;
-        
+
         if (_toolbarPosition == TOCropViewControllerToolbarPositionBottom) {
             frame.origin.y = 0.0f;
         } else {
@@ -201,18 +201,18 @@
         frame.size.width = CGRectGetWidth(self.view.bounds);
         frame.size.height = CGRectGetHeight(self.view.frame) - 44.0f;
     }
-    
+
     return frame;
 }
 
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    
+
     BOOL verticalLayout = CGRectGetWidth(self.view.bounds) < CGRectGetHeight(self.view.bounds);
     self.cropView.frame = [self frameForCropViewWithVerticalLayout:verticalLayout];
     [self.cropView moveCroppedContentToCenterAnimated:NO];
-    
+
     [UIView performWithoutAnimation:^{
         self.toolbar.frame = [self frameForToolBarWithVerticalLayout:verticalLayout];
         [self.toolbar setNeedsLayout];
@@ -228,20 +228,20 @@
 {
     self.snapshotView = [self.toolbar snapshotViewAfterScreenUpdates:NO];
     self.snapshotView.frame = self.toolbar.frame;
-    
+
     if (UIInterfaceOrientationIsLandscape(toInterfaceOrientation))
         self.snapshotView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     else
         self.snapshotView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleRightMargin;
-    
+
     [self.view addSubview:self.snapshotView];
-    
+
     [UIView performWithoutAnimation:^{
         self.toolbar.frame = [self frameForToolBarWithVerticalLayout:UIInterfaceOrientationIsPortrait(toInterfaceOrientation)];
         [self.toolbar layoutIfNeeded];
         self.toolbar.alpha = 0.0f;
     }];
-    
+
     [self.cropView prepareforRotation];
     self.cropView.frame = [self frameForCropViewWithVerticalLayout:!UIInterfaceOrientationIsPortrait(toInterfaceOrientation)];
     self.cropView.simpleMode = YES;
@@ -255,10 +255,10 @@
     for (CALayer *sublayer in self.toolbar.layer.sublayers) {
         [sublayer removeAllAnimations];
     }
-    
+
     self.cropView.frame = [self frameForCropViewWithVerticalLayout:!UIInterfaceOrientationIsLandscape(toInterfaceOrientation)];
     [self.cropView performRelayoutForRotation];
-    
+
     [UIView animateWithDuration:duration animations:^{
         self.snapshotView.alpha = 0.0f;
         self.toolbar.alpha = 1.0f;
@@ -269,19 +269,19 @@
 {
     [self.snapshotView removeFromSuperview];
     self.snapshotView = nil;
-    
+
     [self.cropView setSimpleMode:NO animated:YES];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    
+
     UIInterfaceOrientation orientation = UIInterfaceOrientationPortrait;
     CGSize currentSize = self.view.bounds.size;
     if (currentSize.width < size.width)
         orientation = UIInterfaceOrientationLandscapeLeft;
-    
+
     [self willRotateToInterfaceOrientation:orientation duration:coordinator.transitionDuration];
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         [self willAnimateRotationToInterfaceOrientation:orientation duration:coordinator.transitionDuration];
@@ -296,7 +296,7 @@
 {
     BOOL animated = (self.cropView.angle == 0);
     [self.cropView resetLayoutToDefaultAnimated:animated];
-    
+
     if (self.aspectRatioLocked) {
         [self setAspectRatio:self.defaultAspectRatio animated:animated];
     }
@@ -314,10 +314,10 @@
         self.toolbar.clampButtonGlowing = NO;
         return;
     }
-    
+
     //Depending on the shape of the image, work out if horizontal, or vertical options are required
     BOOL verticalCropBox = self.cropView.cropBoxAspectRatioIsPortrait;
-    
+
     // In CocoaPods, strings are stored in a separate bundle from the main one
     NSBundle *resourceBundle = nil;
     NSBundle *classBundle = [NSBundle bundleForClass:[self class]];
@@ -328,12 +328,12 @@
     else {
         resourceBundle = classBundle;
     }
-    
+
     //Prepare the localized options
     NSString *cancelButtonTitle = NSLocalizedStringFromTableInBundle(@"Cancel", @"TOCropViewControllerLocalizable", resourceBundle, nil);
     NSString *originalButtonTitle = NSLocalizedStringFromTableInBundle(@"Original", @"TOCropViewControllerLocalizable", resourceBundle, nil);
     NSString *squareButtonTitle = NSLocalizedStringFromTableInBundle(@"Square", @"TOCropViewControllerLocalizable", resourceBundle, nil);
-    
+
     //Prepare the list that will be fed to the alert view/controller
     NSMutableArray *items = [NSMutableArray array];
     [items addObject:originalButtonTitle];
@@ -344,12 +344,12 @@
     else {
         [items addObjectsFromArray:@[@"3:2", @"5:3", @"4:3", @"5:4", @"7:5", @"16:9"]];
     }
-    
+
     //Present via a UIAlertController if >= iOS 8
     if (NSClassFromString(@"UIAlertController")) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
         [alertController addAction:[UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:nil]];
-        
+
         //Add each item to the alert controller
         NSInteger i = 0;
         for (NSString *item in items) {
@@ -357,10 +357,10 @@
                 [self setAspectRatio:(TOCropViewControllerAspectRatio)i animated:YES];
             }];
             [alertController addAction:action];
-            
+
             i++;
         }
-        
+
         alertController.modalPresentationStyle = UIModalPresentationPopover;
         UIPopoverPresentationController *presentationController = [alertController popoverPresentationController];
         presentationController.sourceView = self.toolbar;
@@ -371,17 +371,17 @@
     //TODO: Completely overhaul this once iOS 7 support is dropped
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        
+
         UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
                                                                  delegate:self
                                                         cancelButtonTitle:cancelButtonTitle
                                                    destructiveButtonTitle:nil
                                                         otherButtonTitles:nil];
-        
+
         for (NSString *item in items) {
             [actionSheet addButtonWithTitle:item];
         }
-        
+
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
             [actionSheet showFromRect:self.toolbar.clampButtonFrame inView:self.toolbar animated:YES];
         else
@@ -401,7 +401,7 @@
 - (void)setAspectRatio:(TOCropViewControllerAspectRatio)aspectRatioSize animated:(BOOL)animated
 {
     CGSize aspectRatio = CGSizeZero;
-    
+
     switch (aspectRatioSize) {
         case TOCropViewControllerAspectRatioOriginal:
             aspectRatio = CGSizeZero;
@@ -425,16 +425,16 @@
             aspectRatio = CGSizeMake(7.0f, 5.0f);
             break;
         case TOCropViewControllerAspectRatio16x9:
-            aspectRatio = CGSizeMake(16.0f, 9.0f);
+            aspectRatio = CGSizeMake(9.0f, 16.0f);
             break;
     }
-    
+
     if (self.cropView.cropBoxAspectRatioIsPortrait && !self.aspectRatioLocked) {
         CGFloat width = aspectRatio.width;
         aspectRatio.width = aspectRatio.height;
         aspectRatio.height = width;
     }
-    
+
     [self.cropView setAspectLockEnabledWithAspectRatio:aspectRatio animated:animated];
     self.toolbar.clampButtonGlowing = YES;
 }
@@ -472,7 +472,7 @@
         if (completion) {
             completion();
         }
-        
+
         [strongSelf.cropView setCroppingViewsHidden:NO animated:YES];
         if (!CGRectIsEmpty(frame)) {
             [strongSelf.cropView setGridOverlayHidden:NO animated:YES];
@@ -498,7 +498,7 @@
     self.transitionController.image = self.image;
     self.transitionController.fromFrame = [self.cropView convertRect:self.cropView.imageViewFrame toView:self.view];
     self.transitionController.toFrame = frame;
-    
+
     [viewController dismissViewControllerAnimated:YES completion:^ {
         if (completion) {
             completion();
@@ -514,13 +514,13 @@
         strongSelf.transitionController.toFrame = [strongSelf.cropView convertRect:strongSelf.cropView.cropBoxFrame toView:strongSelf.view];
         if (!CGRectIsEmpty(strongSelf.transitionController.fromFrame))
             strongSelf.cropView.croppingViewsHidden = YES;
-        
+
         if (strongSelf.prepareForTransitionHandler)
             strongSelf.prepareForTransitionHandler();
-        
+
         strongSelf.prepareForTransitionHandler = nil;
     };
-    
+
     self.transitionController.isDismissing = NO;
     return self.transitionController;
 }
@@ -534,11 +534,11 @@
             strongSelf.cropView.croppingViewsHidden = YES;
         else
             strongSelf.cropView.simpleMode = YES;
-        
+
         if (strongSelf.prepareForTransitionHandler)
             strongSelf.prepareForTransitionHandler();
     };
-    
+
     self.transitionController.isDismissing = YES;
     return self.transitionController;
 }
@@ -550,7 +550,7 @@
         [self.delegate cropViewController:self didFinishCancelled:YES];
         return;
     }
-    
+
     self.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
@@ -564,14 +564,14 @@
     if (self.showActivitySheetOnDone) {
         TOActivityCroppedImageProvider *imageItem = [[TOActivityCroppedImageProvider alloc] initWithImage:self.image cropFrame:cropFrame angle:angle];
         TOCroppedImageAttributes *attributes = [[TOCroppedImageAttributes alloc] initWithCroppedFrame:cropFrame angle:angle originalImageSize:self.image.size];
-        
+
         NSMutableArray *activityItems = [@[imageItem, attributes] mutableCopy];
         if (self.activityItems)
             [activityItems addObjectsFromArray:self.activityItems];
-        
+
         UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:self.applicationActivities];
         activityController.excludedActivityTypes = self.excludedActivityTypes;
-        
+
         if (NSClassFromString(@"UIPopoverPresentationController")) {
             activityController.modalPresentationStyle = UIModalPresentationPopover;
             activityController.popoverPresentationController.sourceView = self.toolbar;
@@ -596,7 +596,7 @@
         activityController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
             if (!completed)
                 return;
-            
+
             if ([self.delegate respondsToSelector:@selector(cropViewController:didFinishCancelled:)]) {
                 [self.delegate cropViewController:self didFinishCancelled:NO];
             }
@@ -609,7 +609,7 @@
         activityController.completionHandler = ^(NSString *activityType, BOOL completed) {
             if (!completed)
                 return;
-            
+
             if ([self.delegate respondsToSelector:@selector(cropViewController:didFinishCancelled:)]) {
                 [self.delegate cropViewController:self didFinishCancelled:NO];
             }
@@ -619,10 +619,10 @@
             }
         };
         #endif
-        
+
         return;
     }
-    
+
     //If the delegate that only supplies crop data is provided, call it
     if ([self.delegate respondsToSelector:@selector(cropViewController:didCropImageToRect:angle:)]) {
         [self.delegate cropViewController:self didCropImageToRect:cropFrame angle:angle];
@@ -636,7 +636,7 @@
         else {
             image = [self.image croppedImageWithFrame:cropFrame angle:angle];
         }
-        
+
         //dispatch on the next run-loop so the animation isn't interuppted by the crop operation
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.03f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.delegate cropViewController:self didCropToImage:image withRect:cropFrame angle:angle];
@@ -676,9 +676,9 @@
     if (aspectRatioLocked == _aspectRatioLocked) {
         return;
     }
-    
+
     _aspectRatioLocked = aspectRatioLocked;
-    
+
     self.cropView.aspectRatioLocked = aspectRatioLocked;
     self.toolbar.clampButtonHidden = aspectRatioLocked;
 }
@@ -686,7 +686,7 @@
 - (void)setRotateButtonsHidden:(BOOL)rotateButtonsHidden
 {
     self.toolbar.rotateCounterClockwiseButtonHidden = rotateButtonsHidden;
-    
+
     if (self.rotateClockwiseButtonHidden == NO) {
         self.toolbar.rotateClockwiseButtonHidden = rotateButtonsHidden;
     }
@@ -697,9 +697,9 @@
     if (_rotateClockwiseButtonHidden == rotateClockwiseButtonHidden) {
         return;
     }
-    
+
     _rotateClockwiseButtonHidden = rotateClockwiseButtonHidden;
-    
+
     if (self.rotateButtonsHidden == NO) {
         self.toolbar.rotateClockwiseButtonHidden = _rotateClockwiseButtonHidden;
     }
