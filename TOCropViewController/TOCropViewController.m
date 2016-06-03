@@ -424,6 +424,10 @@
         case TOCropViewControllerAspectRatio7x5:
             aspectRatio = CGSizeMake(7.0f, 5.0f);
             break;
+        case TOCropViewControllerAspectRatio9x16:
+            aspectRatio = CGSizeMake(9.0f, 16.0f);
+            break;
+
         case TOCropViewControllerAspectRatio16x9:
             aspectRatio = CGSizeMake(9.0f, 16.0f);
             break;
