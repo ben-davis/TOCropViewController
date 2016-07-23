@@ -331,19 +331,15 @@
 
     //Prepare the localized options
     NSString *cancelButtonTitle = NSLocalizedStringFromTableInBundle(@"Cancel", @"TOCropViewControllerLocalizable", resourceBundle, nil);
-    NSString *originalButtonTitle = NSLocalizedStringFromTableInBundle(@"Original", @"TOCropViewControllerLocalizable", resourceBundle, nil);
+    NSString *portraitButtonTitle = NSLocalizedStringFromTableInBundle(@"Full-screen", @"TOCropViewControllerLocalizable", resourceBundle, nil);
     NSString *squareButtonTitle = NSLocalizedStringFromTableInBundle(@"Square", @"TOCropViewControllerLocalizable", resourceBundle, nil);
+    NSString *landscapeButtonTitle = NSLocalizedStringFromTableInBundle(@"Landscape", @"TOCropViewControllerLocalizable", resourceBundle, nil);
 
     //Prepare the list that will be fed to the alert view/controller
     NSMutableArray *items = [NSMutableArray array];
-    [items addObject:originalButtonTitle];
+    [items addObject:portraitButtonTitle];
     [items addObject:squareButtonTitle];
-    if (verticalCropBox) {
-        [items addObjectsFromArray:@[@"2:3", @"3:5", @"3:4", @"4:5", @"5:7", @"9:16"]];
-    }
-    else {
-        [items addObjectsFromArray:@[@"3:2", @"5:3", @"4:3", @"5:4", @"7:5", @"16:9"]];
-    }
+    [items addObject:landscapeButtonTitle];
 
     //Present via a UIAlertController if >= iOS 8
     if (NSClassFromString(@"UIAlertController")) {
@@ -403,39 +399,15 @@
     CGSize aspectRatio = CGSizeZero;
 
     switch (aspectRatioSize) {
-        case TOCropViewControllerAspectRatioOriginal:
-            aspectRatio = CGSizeZero;
+        case TOCropViewControllerAspectRatioPortrait:
+            aspectRatio = CGSizeMake(9.0f, 16.0f);;
             break;
         case TOCropViewControllerAspectRatioSquare:
             aspectRatio = CGSizeMake(1.0f, 1.0f);
             break;
-        case TOCropViewControllerAspectRatio3x2:
-            aspectRatio = CGSizeMake(3.0f, 2.0f);
-            break;
-        case TOCropViewControllerAspectRatio5x3:
-            aspectRatio = CGSizeMake(5.0f, 3.0f);
-            break;
-        case TOCropViewControllerAspectRatio4x3:
-            aspectRatio = CGSizeMake(4.0f, 3.0f);
-            break;
-        case TOCropViewControllerAspectRatio5x4:
-            aspectRatio = CGSizeMake(5.0f, 4.0f);
-            break;
-        case TOCropViewControllerAspectRatio7x5:
-            aspectRatio = CGSizeMake(7.0f, 5.0f);
-            break;
-        case TOCropViewControllerAspectRatio9x16:
-            aspectRatio = CGSizeMake(9.0f, 16.0f);
-            break;
         case TOCropViewControllerAspectRatio16x9:
             aspectRatio = CGSizeMake(16.0f, 9.0f);
             break;
-    }
-
-    if (self.cropView.cropBoxAspectRatioIsPortrait && !self.aspectRatioLocked) {
-        CGFloat width = aspectRatio.width;
-        aspectRatio.width = aspectRatio.height;
-        aspectRatio.height = width;
     }
 
     [self.cropView setAspectLockEnabledWithAspectRatio:aspectRatio animated:animated];
