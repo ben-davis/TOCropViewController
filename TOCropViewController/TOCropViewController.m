@@ -347,7 +347,8 @@
         [alertController addAction:[UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:nil]];
 
         //Add each item to the alert controller
-        NSInteger i = 0;
+        // First one is Original, we don't want that..
+        NSInteger i = 1;
         for (NSString *item in items) {
             UIAlertAction *action = [UIAlertAction actionWithTitle:item style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                 [self setAspectRatio:(TOCropViewControllerAspectRatio)i animated:YES];
@@ -399,7 +400,7 @@
     CGSize aspectRatio = CGSizeZero;
 
     switch (aspectRatioSize) {
-        case TOCropViewControllerAspectRatioPortrait:
+        case TOCropViewControllerAspectRatio9x16:
             aspectRatio = CGSizeMake(9.0f, 16.0f);;
             break;
         case TOCropViewControllerAspectRatioSquare:
